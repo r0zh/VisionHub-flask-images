@@ -8,7 +8,7 @@ app = Flask(__name__)
 # Directory where the photos are stored
 PHOTOS_DIR = './photos'
 
-@app.route('/get_image')
+@app.route('/get_image', methods=['POST'])
 def get_photo():
     # get a random photo from the folder and return it
     photo = ""
