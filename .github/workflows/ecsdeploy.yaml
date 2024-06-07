@@ -16,14 +16,14 @@ on:
 
 env:
   AWS_REGION: us-east-1 # set this to your preferred AWS region, e.g. us-west-1
-  ECR_REPOSITORY: flask-server # set this to your Amazon ECR repository name
-  ECS_SERVICE: FlaskService # set this to your Amazon ECS service name
+  ECR_REPOSITORY: flask-images-server # set this to your Amazon ECR repository name
+  ECS_SERVICE: flaskImagesService # set this to your Amazon ECS service name
   ECS_CLUSTER: VisionHubCluster # set this to your Amazon ECS cluster name
   ECS_TASK_DEFINITION:
-    flaskServerTaskDef.json # set this to the path to your Amazon ECS task definition
+    flaskImagesServerTaskDef.json # set this to the path to your Amazon ECS task definition
     # file, e.g. .aws/task-definition.json
   CONTAINER_NAME:
-    flaskContainer # set this to the name of the container in the
+    flaskImagesContainer # set this to the name of the container in the
     # containerDefinitions section of your task definition
 
 jobs:
@@ -42,7 +42,6 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-session-token: ${{ secrets.SESSION_TOKEN }}
           aws-region: ${{ env.AWS_REGION }}
-
 
       - name: Login to Amazon ECR
         id: login-ecr
