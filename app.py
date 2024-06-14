@@ -33,8 +33,12 @@ def generate():
         positivePrompt = request.get_json()["positivePrompt"]
         # negative prompt is optional
         negativePrompt = request.get_json().get("negativePrompt", "") 
+        if(negativePrompt == None):
+            negativePrompt = ""
         seed = request.get_json()["seed"]
         ratio = request.get_json()["ratio"]
+
+
 
         # Checkpoint and ksampler parameters
         wf.set_node_param("Loader","ckpt_name", request.get_json()["checkpoint"])
@@ -56,15 +60,39 @@ def generate():
         print(wf.get_node_param("LoRA Stacker", "lora_name_1"))
         print(wf.get_node_param("LoRA Stacker", "lora_wt_1"))
 
+        # Embeddings
+        for i, emb in enumerate(request.get_json()["embeddings"], start=1):
+            print(emb)
+            if(emb["prompt_target"] == "positive"):
+                if(emb["weight"] != 1):
+                    positivePrompt = positivePrompt + f",(embedding:{emb['embedding']}:{emb['weight']})"
+                else:
+                    positivePrompt = positivePrompt + f",embedding:{emb['embedding']}"
+            else:
+                if(emb["weight"] != 1):
+                    negativePrompt = negativePrompt + f",(embedding:{emb['embedding']}:{emb['weight']})"
+                else:
+                    negativePrompt = negativePrompt + f",embedding:{emb['embedding']}"
+        
+        # Positive and negative prompts
         wf.set_node_param("UserInputPositive", "text", positivePrompt)
         wf.set_node_param("UserInputNegative", "text", negativePrompt)
+        
+        print(wf.get_node_param("UserInputPositive", "text"))
+        print(wf.get_node_param("UserInputNegative", "text"))
+        
+        # Seed
         wf.set_node_param("User seed", "seed", seed)
+        
+        # Resolution
         if ratio == "1:1":
             wf.set_node_param("width", "number", 512)
             wf.set_node_param("height", "number", 512)
         else:
             wf.set_node_param("width", "number", 512)
             wf.set_node_param("height", "number", 768)
+        
+        # Send request and save the image
         results = api.queue_and_wait_images(wf, "Result")
         for filename, image_data in results.items():
             with open("generated/generated.png", "wb+") as f:
