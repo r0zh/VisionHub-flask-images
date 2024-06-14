@@ -1,1 +1,4 @@
 flask
+websockets
+comfy_api_simplified
+nest_asyncio
