@@ -1,30 +1,81 @@
-from flask import Flask, send_from_directory, request
-import os
-import random
+from flask import Flask, request, render_template, send_from_directory
+from comfy_api_simplified import ComfyApiWrapper, ComfyWorkflowWrapper
+import asyncio
+import nest_asyncio
 
-# Initialize the Flask application
+nest_asyncio.apply()
+
 app = Flask(__name__)
 
-# Directory where the photos are stored
-PHOTOS_DIR = './photos'
 
-@app.route('/get_image', methods=['POST'])
-def get_photo():
-    print(request.get_json())
-    ratio = request.get_json()['ratio']
-    photos_directory = PHOTOS_DIR + '/' + ratio
-    # get a random photo from the folder and return it
-    photo = ""
+@app.route("/")  # ruta: página principal
+def index():
+    return render_template("index.html")
 
-    # get random photo from folder with ratio name
-    def get_random_photo(photos_directory):
-        photos = os.listdir(photos_directory)
-        photo = random.choice(photos)
-        return photo
 
-    photo = get_random_photo(photos_directory)
+filenamez = ""
 
-    return send_from_directory(photos_directory, photo)
+
+@app.route(
+    "/generate", methods=["POST"]
+)  
+def generate():
+
+    async def async_generate():
+        api = ComfyApiWrapper("http://127.0.0.1:8188/")
+        print(request.get_json())
+        style = request.get_json()["style_id"]
+        if(request.get_json()["highQ"] == True):
+            wf = ComfyWorkflowWrapper("highQ_workflow_api.json")
+        else:
+            wf = ComfyWorkflowWrapper("normalQ_workflow_api.json")
+
+        positivePrompt = request.get_json()["positivePrompt"]
+        # negative prompt is optional
+        negativePrompt = request.get_json().get("negativePrompt", "") 
+        seed = request.get_json()["seed"]
+        ratio = request.get_json()["ratio"]
+
+        # Checkpoint and ksampler parameters
+        wf.set_node_param("Loader","ckpt_name", request.get_json()["checkpoint"])
+
+        wf.set_node_param("steps", "number", request.get_json()["ksampler"]["steps"])
+        wf.set_node_param("cfg", "number", request.get_json()["ksampler"]["cfg"])
+        wf.set_node_param("sampler_name", "sampler_name", request.get_json()["ksampler"]["sampler_name"])
+        wf.set_node_param("scheduler", "scheduler_name", request.get_json()["ksampler"]["scheduler"])
+
+        # Loras
+        for i, lora in enumerate(request.get_json()["loras"], start=1):
+            print(lora)
+            wf.set_node_param("LoRA Stacker", f"lora_name_{i}", lora["lora"])
+            wf.set_node_param("LoRA Stacker", f"lora_wt_{i}", lora["weight"])
+        
+        wf.set_node_param("LoRA Stacker", "lora_count", len(request.get_json()["loras"]))
+        
+        print(wf.get_node_param("LoRA Stacker", "lora_count"))
+        print(wf.get_node_param("LoRA Stacker", "lora_name_1"))
+        print(wf.get_node_param("LoRA Stacker", "lora_wt_1"))
+
+        wf.set_node_param("UserInputPositive", "text", positivePrompt)
+        wf.set_node_param("UserInputNegative", "text", negativePrompt)
+        wf.set_node_param("User seed", "seed", seed)
+        if ratio == "1:1":
+            wf.set_node_param("width", "number", 512)
+            wf.set_node_param("height", "number", 512)
+        else:
+            wf.set_node_param("width", "number", 512)
+            wf.set_node_param("height", "number", 768)
+        results = api.queue_and_wait_images(wf, "Result")
+        for filename, image_data in results.items():
+            with open("generated/generated.png", "wb+") as f:
+                f.write(image_data)
+        pass
+
+    asyncio.set_event_loop(asyncio.SelectorEventLoop())
+    asyncio.get_event_loop().run_until_complete(async_generate())
+    response = send_from_directory("generated/", "generated.png", as_attachment=True)
+    return response
+
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(debug=True)
