@@ -1,7 +1,7 @@
 {
   "1": {
     "inputs": {
-      "seed": -1
+      "seed": 1024913113883299
     },
     "class_type": "Seed (rgthree)",
     "_meta": {
@@ -192,73 +192,13 @@
   "13": {
     "inputs": {
       "images": [
-        "14",
+        "31",
         0
       ]
     },
     "class_type": "PreviewImage",
     "_meta": {
       "title": "Result"
-    }
-  },
-  "14": {
-    "inputs": {
-      "upscale_by": 2,
-      "seed": 35063588577859,
-      "steps": 5,
-      "cfg": 1,
-      "sampler_name": "dpmpp_sde",
-      "scheduler": "karras",
-      "denoise": 0.2,
-      "mode_type": "Linear",
-      "tile_width": 512,
-      "tile_height": 512,
-      "mask_blur": 8,
-      "tile_padding": 32,
-      "seam_fix_mode": "None",
-      "seam_fix_denoise": 1,
-      "seam_fix_width": 64,
-      "seam_fix_mask_blur": 8,
-      "seam_fix_padding": 16,
-      "force_uniform_tiles": true,
-      "tiled_decode": false,
-      "image": [
-        "7",
-        5
-      ],
-      "model": [
-        "7",
-        0
-      ],
-      "positive": [
-        "7",
-        1
-      ],
-      "negative": [
-        "7",
-        2
-      ],
-      "vae": [
-        "7",
-        4
-      ],
-      "upscale_model": [
-        "15",
-        0
-      ]
-    },
-    "class_type": "UltimateSDUpscale",
-    "_meta": {
-      "title": "Ultimate SD Upscale"
-    }
-  },
-  "15": {
-    "inputs": {
-      "model_name": "4xUltrasharp_4xUltrasharpV10.pt"
-    },
-    "class_type": "UpscaleModelLoader",
-    "_meta": {
-      "title": "Load Upscale Model"
     }
   },
   "16": {
@@ -517,6 +457,66 @@
     "class_type": "LoRA Stacker",
     "_meta": {
       "title": "LoRA Stacker"
+    }
+  },
+  "30": {
+    "inputs": {
+      "model_name": "4xUltrasharp_4xUltrasharpV10.pt"
+    },
+    "class_type": "UpscaleModelLoader",
+    "_meta": {
+      "title": "Load Upscale Model"
+    }
+  },
+  "31": {
+    "inputs": {
+      "upscale_by": 2,
+      "seed": 325339059936604,
+      "steps": 5,
+      "cfg": 1,
+      "sampler_name": "dpmpp_sde",
+      "scheduler": "karras",
+      "denoise": 0.2,
+      "mode_type": "Linear",
+      "tile_width": 512,
+      "tile_height": 512,
+      "mask_blur": 8,
+      "tile_padding": 32,
+      "seam_fix_mode": "None",
+      "seam_fix_denoise": 1,
+      "seam_fix_width": 64,
+      "seam_fix_mask_blur": 8,
+      "seam_fix_padding": 16,
+      "force_uniform_tiles": true,
+      "tiled_decode": false,
+      "image": [
+        "7",
+        5
+      ],
+      "model": [
+        "7",
+        0
+      ],
+      "positive": [
+        "7",
+        1
+      ],
+      "negative": [
+        "7",
+        2
+      ],
+      "vae": [
+        "7",
+        4
+      ],
+      "upscale_model": [
+        "30",
+        0
+      ]
+    },
+    "class_type": "UltimateSDUpscale",
+    "_meta": {
+      "title": "Ultimate SD Upscale"
     }
   }
 }
