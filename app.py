@@ -48,21 +48,18 @@ def generate():
         wf.set_node_param("sampler_name", "sampler_name", request.get_json()["ksampler"]["sampler_name"])
         wf.set_node_param("scheduler", "scheduler_name", request.get_json()["ksampler"]["scheduler"])
 
+        
         # Loras
-        for i, lora in enumerate(request.get_json()["loras"], start=1):
-            print(lora)
+        loras = request.get_json().get("loras", [])
+        
+        wf.set_node_param("LoRA Stacker", "lora_count", len(loras))
+        for i, lora in enumerate(loras, start=1):
             wf.set_node_param("LoRA Stacker", f"lora_name_{i}", lora["lora"])
             wf.set_node_param("LoRA Stacker", f"lora_wt_{i}", lora["weight"])
         
-        wf.set_node_param("LoRA Stacker", "lora_count", len(request.get_json()["loras"]))
-        
-        print(wf.get_node_param("LoRA Stacker", "lora_count"))
-        print(wf.get_node_param("LoRA Stacker", "lora_name_1"))
-        print(wf.get_node_param("LoRA Stacker", "lora_wt_1"))
-
         # Embeddings
-        for i, emb in enumerate(request.get_json()["embeddings"], start=1):
-            print(emb)
+        embeddings = request.get_json().get("embeddings", [])
+        for i, emb in enumerate(embeddings, start=1):
             if(emb["prompt_target"] == "positive"):
                 if(emb["weight"] != 1):
                     positivePrompt = positivePrompt + f",(embedding:{emb['embedding']}:{emb['weight']})"
